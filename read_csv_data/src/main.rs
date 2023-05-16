@@ -2,15 +2,15 @@ extern crate csv;
 
 use std::error::Error;
 use std::fs::File;
- use std::process;
+
+
 
 fn main() -> Result<(), Box<dyn Error>> {
     // open the csv file
     let file = File::open("cyberpunk.csv")?;
     let mut rdr = csv::Reader::from_reader(file);
 
-    // read the headers
-    let headers = rdr.Headers()?.clone();
+    
 
     // read the data into a vector of tuples
     let data: Vec<(String, i32, i32, i32)> = rdr.records().map(|r| {
@@ -24,9 +24,26 @@ fn main() -> Result<(), Box<dyn Error>> {
     .collect::<Result<_, csv::Error>>()?;
 
     // print the data
+    
     for (name, level, damage, armor) in &data {
         println!("Name: {}, Level: {}, Damage: {}, Armor: {}", name, level, damage, armor);
     }
+
+    // Filter the data by level
+	let filtered_data: Vec<_> = data.iter().filter(|(_, level, _, _)| *level > 30).collect();
+	
+	// Print the filtered data
+	println!("Filtered Data:");
+	for (name, level, damage, armor) in &filtered_data {
+		println!("Name: {}, Level: {}, Damage: {}, Armor: {}", name, level, damage, armor);
+	}
+	
+	// Calculate the average damage
+	let total_damage: i32 = data.iter().map(|(_, _, damage, _)| *damage).sum();
+	let avg_damage = total_damage / (data.len() as i32);
+	
+	// Print the average damage
+	println!("Average Damage: {}", avg_damage);
 
     Ok(())
 }
